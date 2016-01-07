@@ -50,6 +50,18 @@ class LinksController < ApplicationController
     end
   end
 
+  def upvote
+    @link = Link.find(params[:id])
+    @link.liked_by current_user
+    redirect_to :back
+  end
+
+  def downvote
+    @link = Link.find(params[:id])
+    @link.downvote_from current_user
+    redirect_to :back
+  end
+
   private
     def set_link
       @link = Link.find(params[:id])
