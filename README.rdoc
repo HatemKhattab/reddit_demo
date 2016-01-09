@@ -6,6 +6,7 @@ This a small reddit site that apply some features like:
 * vote a link
 * comment a link
 
-= Soon I will upload the site on Web 
+= You can visit the site on http://linkslite.herokuapp.com/
+
 
 
