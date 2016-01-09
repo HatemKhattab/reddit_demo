@@ -4,6 +4,8 @@ This a small reddit site that apply some features like:
 
 add and manage a link
 vote a link
-comment a link 
+comment a link
+
+= Soon I will upload the site on Web =
 
 
