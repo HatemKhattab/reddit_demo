@@ -15,6 +15,7 @@ gem 'devise'
 gem 'bootstrap-sass'
 gem 'acts_as_votable', '~> 0.10.0'
 gem 'simple_form', '~> 3.0.2'
+gem 'rails_12factor'
 group :development, :test do
   gem 'byebug'
   gem 'web-console', '2.0.0.beta3'
