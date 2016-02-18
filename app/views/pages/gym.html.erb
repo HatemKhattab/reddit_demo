@@ -1,6 +1,281 @@
+<head>
+    <meta charset="utf-8">
+    <title>The Gym - Personal Training</title>
+    <meta name="viewport" content="width=divice-width, initial-scale=1.0">
+    <link rel="stylesheet" href="blueberry.css" />
+    <link rel="stylesheet" type="text/css" href="style.css.scss">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
+    <script src="jquery.bluberry.js"></script>
+    <script>
+        $(window).load(function () {
+            $('.blueberry').blueberry();
+        });
+    </script>
+  <script>
+    (function ($) {
+	$.fn.extend({
+		blueberry: function (options) {
+
+			//default values for plugin options
+			var defaults = {
+				interval: 5000,
+				duration: 500,
+				lineheight: 1,
+				height: 'auto', //reserved
+				hoverpause: false,
+				pager: true,
+				nav: true, //reserved
+				keynav: true
+			}
+			var options = $.extend(defaults, options);
+
+			return this.each(function () {
+				var o = options;
+				var obj = $(this);
+
+				//store the slide and pager li
+				var slides = $('.slides li', obj);
+				var pager = $('.pager li', obj);
+
+				//set initial current and next slide index values
+				var current = 0;
+				var next = current + 1;
+
+				//get height and width of initial slide image and calculate size ratio
+				var imgHeight = slides.eq(current).find('img').height();
+				var imgWidth = slides.eq(current).find('img').width();
+				var imgRatio = imgWidth / imgHeight;
+
+				//define vars for setsize function
+				var sliderWidth = 0;
+				var cropHeight = 0;
+
+				//hide all slides, fade in the first, add active class to first slide
+				slides.hide().eq(current).fadeIn(o.duration).addClass('active');
 
 
-<h1>My First Heading</h1>
+				//build pager if it doesn't already exist and if enabled
+				if (pager.length) {
+					pager.eq(current).addClass('active');
+				} else if (o.pager) {
+					obj.append('<ul class="pager"></ul>');
+					slides.each(function (index) {
+						$('.pager', obj).append('<li><a href="#"><span>' + index + '</span></a></li>')
+					});
+					pager = $('.pager li', obj);
+					pager.eq(current).addClass('active');
+				}
 
-<p>My first paragraph.</p>
+				//rotate to selected slide on pager click
+				if (pager) {
+					$('a', pager).click(function () {
+						//stop the timer
+						clearTimeout(obj.play);
+						//set the slide index based on pager index
+						next = $(this).parent().index();
+						//rotate the slides
+						rotate();
+						return false;
+					});
+				}
+
+				//primary function to change slides
+				var rotate = function () {
+					//fade out current slide and remove active class,
+					//fade in next slide and add active class
+					slides.eq(current).fadeOut(o.duration).removeClass('active')
+						.end().eq(next).fadeIn(o.duration).addClass('active').queue(function () {
+							//add rotateTimer function to end of animation queue
+							//this prevents animation buildup caused by requestAnimationFrame
+							//rotateTimer starts a timer for the next rotate
+							rotateTimer();
+							$(this).dequeue()
+						});
+
+					//update pager to reflect slide change
+					if (pager) {
+						pager.eq(current).removeClass('active')
+							.end().eq(next).addClass('active');
+					}
+
+					//update current and next vars to reflect slide change
+					//set next as first slide if current is the last
+					current = next;
+					next = current >= slides.length - 1 ? 0 : current + 1;
+				};
+				//create a timer to control slide rotation interval
+				var rotateTimer = function () {
+					obj.play = setTimeout(function () {
+						//trigger slide rotate function at end of timer
+						rotate();
+					}, o.interval);
+				};
+				//start the timer for the first time
+				rotateTimer();
+
+				//pause the slider on hover
+				//disabled by default due to bug
+				if (o.hoverpause) {
+					slides.hover(function () {
+						//stop the timer in mousein
+						clearTimeout(obj.play);
+					}, function () {
+						//start the timer on mouseout
+						rotateTimer();
+					});
+				}
+
+				//calculate and set height based on image width/height ratio and specified line height
+				var setsize = function () {
+					sliderWidth = $('.slides', obj).width();
+					cropHeight = Math.floor(((sliderWidth / imgRatio) / o.lineheight)) * o.lineheight;
+
+					$('.slides', obj).css({ height: cropHeight });
+				};
+				setsize();
+
+				//bind setsize function to window resize event
+				$(window).resize(function () {
+					setsize();
+				});
+
+
+
+				//Add keyboard navigation
+
+				if (o.keynav) {
+					$(document).keyup(function (e) {
+
+						switch (e.which) {
+
+							case 39: case 32: //right arrow & space
+
+								clearTimeout(obj.play);
+
+								rotate();
+
+								break;
+
+
+							case 37: // left arrow
+								clearTimeout(obj.play);
+								next = current - 1;
+								rotate();
+
+								break;
+						}
+
+					});
+				}
+
+
+			});
+		}
+	});
+})(jQuery);
+  </script>
+</head>
+<body>
+    <header>
+        <a href="#" id="logo"></a>
+        <nav>
+            <a href="#" id="menu-icon"></a>
+            <ul>
+                <li><a href="#" class="current">Home</a></li>
+                <li><a href="#">Trainers</a></li>
+                <li><a href="#">Plans</a></li>
+                <li><a href="#">Pricing</a></li>
+                <li><a href="#">Facility</a></li>
+                <li><a href="#">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+    <div id="doc">
+        <div id="content">
+            <div class="blueberry">
+                <ul class="slides">
+                    <li><img src="http://dworek-skawinski.pl/en/wp-content/uploads/sites/2/2014/10/IMG_3322_DxO-kopia-960x479.jpg" /></li>
+                    <li><img src="http://www.nutrifit.it/img/jquery_slider_img/slide2.jpg" /></li>
+                    <li><img src="http://www.progressiveathletic.trainerize.com/files/upload/What%20We%20Do_banner_22082015_051839.jpg" /></li>
+                    <li><img src="http://www.powerrackstrength.com/wp-content/uploads/2014/10/10603732_300670716803174_2649440780680860313_n.jpg" /></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <section>
+        <img src="http://www.w3newbie.com/wp-content/uploads/trainers.png" />
+        <h1>Best Trainers Around</h1>
+        <p>Here at the Gym we have the best training staff in the tri-state area as we seek out and recruit talented trainers with all the right certifications.
+        Come in today and have a sit down with one of our trainers so we can help you meet your goals in the fastest way possible!</p>
+    </section>
+    <section>
+        <img src="http://www.w3newbie.com/wp-content/uploads/location.png" />
+        <h1>Local & Convenient.</h1>
+        <p>Our location sits newr the center of four major roadways exists making it very convienient for gym goers and personal training clients to get their workouts in before or after work, even on a short lunch break!</p>
+    </section>
+    <section>
+        <img src="http://www.w3newbie.com/wp-content/uploads/check.png" />
+        <h1>Check Us Out - Free</h1>
+        <p>To show how confident we are in our facilities and their satisfying the needs of our clients, we offer a free two weeeks pass so anyone interested can first
+        get a feel for our gym and decide whether on not they'd like to join.Call or come in today for your free pass!</p>
+    </section>
+
+    <div class="clear"></div>
+    <article>
+        <img src="http://www.bangkok101.com/wp-content/uploads/2015/12/Gym-4.jpg" />
+    </article>
+    <aside>
+        <h2>Our Group Class Schedule</h2>
+        <ul class="gym">
+            <li><h3>Studio Cycling att 8 a.m. - 60 minutes</h3></li>
+            <li><h3>Abs Sculpting at 12 p.m. - 30 minutes</h3></li>
+            <li><h3>Power Yoga at 10 a.m. - 60 minutes</h3></li>
+            <li><h3>Boot Camp at 2 p.m. - 30 minutes</h3></li>
+            <li><h3>Butt Sculpting at 4 p.m. - 60 minutes</h3></li>
+        </ul>
+    </aside>
+
+    <div class="clear"></div>
+
+    <section>
+        <h1>Ladies Section</h1>
+        <img src="http://www.w3newbie.com/wp-content/uploads/ladies-gym.jpg" />
+        <p>Included in our facility is a "ladies only" section of the gym where women can workout to themselves</p>
+    </section>
+    <section>
+        <h1>The Gym Floor</h1>
+        <img src="http://www.garage-gyms.com/wp-content/uploads/2014/01/giant-private-home-gym.jpg" />
+        <p>Our gym floor is as spacious as they come.Enjoy scenic views fromthe cardio equipment on the third floor</p>
+    </section>
+    <section>
+        <h1>Free Weights</h1>
+        <img src="http://www.w3newbie.com/wp-content/uploads/free-weights.jpg" />
+        <p>Our free weights section has an extensive collection of dumbbells and olympic plates for body building</p>
+    </section>
+    <footer>
+        <section>
+            <h3><b>The Gym</b></h3>
+            <p><b>010-4444-7777</b><br /><br />
+            14 Kunggatan <br />
+            2763 Uppsala<br />
+            trainers@newgym.com </p>
+        </section>
+        <section>
+            <h3>Connect With Us</h3>
+            <ul class="social">
+                <li><a href="#"><img src="http://www.w3newbie.com/wp-content/uploads/facebook1.png" /></a></li>
+                <li><a href="#"><img src="http://www.w3newbie.com/wp-content/uploads/googleplus.png" /></a></li>
+                <li><a href="#"><img src="http://www.w3newbie.com/wp-content/uploads/twitter1.png" /></a></li>
+                <li><a href="#"><img src="http://www.w3newbie.com/wp-content/uploads/youtube1.png" /></a></li>
+            </ul>
+        </section>
+        <section>
+            <img id="logo-buttom" src="http://www.w3newbie.com/wp-content/uploads/weight-lifter.png" />
+        </section>
+    </footer>
+    <footer class="second">
+        <p>Copyright The Gym 2016</p>
+    </footer>
+</body>
 
